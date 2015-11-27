@@ -4,7 +4,7 @@ func (l *Logger) log(lvl string, message string) {
 
 	s, err := formatLog(lvl, 2, message)
 	if err != nil {
-		return
+		panic(err)
 	}
 	l.Output.Write([]byte(s))
 }

@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func getFile(f string) string {
@@ -16,6 +17,10 @@ func getFile(f string) string {
 func getFunct(f string) string {
 	s := strings.Split(f, ".")
 	return s[len(s)-1]
+}
+
+func getDate() string {
+	return time.Now().Format("2006-01-02 15:04:05")
 }
 
 func formatLog(lvl string, depth int, message string) (string, error) {
@@ -31,6 +36,8 @@ func formatLog(lvl string, depth int, message string) (string, error) {
 	}
 	funct := getFunct(fn.Name())
 
-	s := fmt.Sprintf("[%s] : [%s] [%s::%s:%s] - %s", lvl, "Date", file, funct, strconv.Itoa(line), message)
+	date := getDate()
+
+	s := fmt.Sprintf("[%s] : [%s] [%s::%s:%s] - %s", lvl, date, file, funct, strconv.Itoa(line), message)
 	return s, nil
 }
