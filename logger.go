@@ -23,11 +23,13 @@ type Logger struct {
 	ltype  Type
 }
 
+var LevelsList = [...]Level{DEBUG, INFO, NOTICE, WARNING, ERROR, FATAL}
+
 //NewFileLogger open the file given as path, create a new logger and fill fields of this struct. The function returns a *Logger
 func NewFileLogger(path string) *Logger {
 	out, err := os.Open(path)
 	if err != nil {
-		fmt.Println("[GO-LOGGER] - ERROR - Can't open the file given as parameter")
+		fmt.Println("[GO-LOGGER] - ERROR - Can't open the file given as parameter - %s", err)
 		return nil
 	}
 	l := Logger{
@@ -36,7 +38,6 @@ func NewFileLogger(path string) *Logger {
 		active: true,
 		ltype:  FILE,
 	}
-	LevelsList := [...]Level{DEBUG, INFO, NOTICE, WARNING, ERROR, FATAL}
 
 	for idx := range LevelsList {
 		l.levels[LevelsList[idx]] = true
@@ -52,7 +53,6 @@ func NewConsoleLogger(out *os.File) *Logger {
 		active: true,
 		ltype:  CONSOLE,
 	}
-	LevelsList := [...]Level{DEBUG, INFO, NOTICE, WARNING, ERROR, FATAL}
 
 	for idx := range LevelsList {
 		l.levels[LevelsList[idx]] = true
@@ -66,6 +66,14 @@ func (l *Logger) Enable() {
 
 func (l *Logger) Disable() {
 	l.active = false
+}
+
+func (l *Logger) EnableLevel(lvl Level) {
+	l.levels[lvl] = true
+}
+
+func (l *Logger) DisableLevel(lvl Level) {
+	l.levels[lvl] = false
 }
 
 func (l *Logger) CheckStatus() bool {
