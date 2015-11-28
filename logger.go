@@ -22,7 +22,7 @@ const (
 
 type loggerMessage struct {
 	format string
-	a      [...]interface{}
+	a      []interface{}
 	ltype  string
 	date   string
 	file   string
@@ -31,7 +31,7 @@ type loggerMessage struct {
 }
 
 type loggerInstance struct {
-	actived bool
+	actived Status
 	output  *os.File
 	ltype   Type
 }
@@ -42,10 +42,8 @@ type Logger struct {
 	instances []loggerInstance
 }
 
-// var LevelsList = [...]Level{DEBUG, INFO, NOTICE, WARNING, ERROR, FATAL}
-
 //addFileLogger open the file given as path, create a new logger and fill fields of this struct. The function returns a *Logger
-func (l *Logger) addFileLogger(path string) error {
+func (l *Logger) AddFileLogger(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		fmt.Printf("[GO-LOGGER] - ERROR - The file given as parameter exist - %s\n", err)
 		return nil
@@ -65,7 +63,7 @@ func (l *Logger) addFileLogger(path string) error {
 }
 
 //addConsoleLogger create a Logger struct and fill fields of this struct. The function returns a *Logger
-func (l *Logger) addConsoleLogger(out *os.File) error {
+func (l *Logger) AddConsoleLogger(out *os.File) error {
 	i := loggerInstance{
 		actived: true,
 		output:  out,
@@ -84,11 +82,11 @@ func (l *Logger) ChangeStatus(t Type, s Status) {
 }
 
 func (l *Logger) Enable() {
-	l.active = true
+	l.actived = true
 }
 
 func (l *Logger) Disable() {
-	l.active = false
+	l.actived = false
 }
 
 func (l *Logger) CheckStatus() bool {
@@ -98,16 +96,16 @@ func (l *Logger) CheckStatus() bool {
 func (l *Logger) Quit() {
 	for _, elem := range l.instances {
 		if elem.ltype == FILE {
-			os.Close(elem.output)
+			elem.output.Close()
 		}
 	}
 }
 
 func Init() *Logger {
-	go messagesHandler()
 	l := Logger{
 		actived:  true,
-		messages: make(chan *messages, 64),
+		messages: make(chan *loggerMessage, 64),
 	}
+	go l.messagesHandler()
 	return &l
 }

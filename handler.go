@@ -1,14 +1,15 @@
-package Logger
+package logger
 
 import "fmt"
+
+// 	l.Output.Write([]byte(s))
+//	s := fmt.Sprintf("[%s] : [%s] [%s::%s:%s] - %s", lvl, date, file, funct, strconv.Itoa(line), message)
 
 func (l *Logger) messagesHandler() {
 	for {
 		select {
-		case m, ok := <-l.messages:
-			if !ok {
-				fmt.Println("[GO-LOGGER - ERROR - Channel of messages is closed")
-			}
+		case m := <-l.messages:
+			//Here we'll have to format the file
 			fmt.Println(m.format)
 		}
 	}
