@@ -1,5 +1,7 @@
 package logger
 
+import "fmt"
+
 func (l *Logger) log(lvl string, message string) {
 
 	s, err := formatLog(lvl, 2, message)
@@ -9,26 +11,32 @@ func (l *Logger) log(lvl string, message string) {
 	l.Output.Write([]byte(s))
 }
 
-func (l *Logger) Debug(message string) {
-	l.log("DEBUG", message)
+func (l *Logger) Debug(format string, a ...interface{}) {
+	f := fmt.Sprintf(format, a...)
+	l.log("DEBUG", f)
 }
 
-func (l *Logger) Info(message string) {
-	l.log("INFO", message)
+func (l *Logger) Info(format string, a ...interface{}) {
+	f := fmt.Sprintf(format, a...)
+	l.log("INFO", f)
 }
 
-func (l *Logger) Notice(message string) {
-	l.log("NOTICE", message)
+func (l *Logger) Notice(format string, a ...interface{}) {
+	f := fmt.Sprintf(format, a...)
+	l.log("NOTICE", f)
 }
 
-func (l *Logger) Warning(message string) {
-	l.log("WARNING", message)
+func (l *Logger) Warning(format string, a ...interface{}) {
+	f := fmt.Sprintf(format, a...)
+	l.log("WARNING", f)
 }
 
-func (l *Logger) Error(message string) {
-	l.log("ERROR", message)
+func (l *Logger) Error(format string, a ...interface{}) {
+	f := fmt.Sprintf(format, a...)
+	l.log("ERROR", f)
 }
 
-func (l *Logger) Fatal(message string) {
-	l.log("FATAL", message)
+func (l *Logger) Fatal(format string, a ...interface{}) {
+	f := fmt.Sprintf(format, a...)
+	l.log("FATAL", f)
 }
