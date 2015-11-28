@@ -2,14 +2,14 @@ package logger
 
 import "fmt"
 
-func (l *Logger) log(lvl string, message string) {
-
-	s, err := formatLog(lvl, 2, message)
-	if err != nil {
-		panic(err)
-	}
-	l.Output.Write([]byte(s))
-}
+// func (l *Logger) log(lvl string, message string) {
+//
+// 	s, err := formatLog(lvl, 2, message)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	l.Output.Write([]byte(s))
+// }
 
 func (l *Logger) Debug(format string, a ...interface{}) {
 	f := fmt.Sprintf(format, a...)

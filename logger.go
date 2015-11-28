@@ -7,6 +7,8 @@ import (
 
 //Type is the one type used to define CONSOLE, FILE, ... - the type of our logger
 type Type uint8
+
+//Status is just a bool used to change the status of a certain type of loggers
 type Status bool
 
 const (
@@ -18,15 +20,14 @@ const (
 	ANY Type = iota
 )
 
-// //Logger is the main type that will be used. It contains informations about the logger as the type, a *os.file, params associated to this logger...
-// type Logger struct {
-// 	levels map[Level]bool
-// 	Output *os.File
-// 	active bool
-// 	ltype  Type
-// }
-
 type loggerMessage struct {
+	format string
+	a      [...]interface{}
+	ltype  string
+	date   string
+	file   string
+	funct  string
+	line   int
 }
 
 type loggerInstance struct {
@@ -76,7 +77,7 @@ func (l *Logger) addConsoleLogger(out *os.File) error {
 
 func (l *Logger) ChangeStatus(t Type, s Status) {
 	for _, elem := range l.instances {
-		if elem.outType == t {
+		if elem.ltype == t {
 			elem.actived = s
 		}
 	}
@@ -92,6 +93,14 @@ func (l *Logger) Disable() {
 
 func (l *Logger) CheckStatus() bool {
 	return l.actived
+}
+
+func (l *Logger) Quit() {
+	for _, elem := range l.instances {
+		if elem.ltype == FILE {
+			os.Close(elem.output)
+		}
+	}
 }
 
 func Init() *Logger {
