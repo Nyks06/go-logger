@@ -8,6 +8,10 @@ import (
 //Type is the one type used to define CONSOLE, FILE, ... - the type of our logger
 type Type uint8
 
+type Level uint8
+
+type Color string
+
 //Status is just a bool used to change the status of a certain type of loggers
 type Status bool
 
@@ -20,6 +24,24 @@ const (
 	ANY Type = iota
 )
 
+const (
+	Black   string = "DEBUG"
+	Red     string = "ERROR"
+	Green   string = "NOTICE"
+	Yellow  string = "WARNING"
+	Blue    string = "INFO"
+	Magenta string = "FATAL"
+)
+
+const (
+	DEBUG   Level = iota
+	INFO    Level = iota
+	NOTICE  Level = iota
+	WARNING Level = iota
+	ERROR   Level = iota
+	FATAL   Level = iota
+)
+
 type loggerMessage struct {
 	format string
 	ltype  string
@@ -27,6 +49,7 @@ type loggerMessage struct {
 	file   string
 	funct  string
 	line   int
+	level  Level
 }
 
 type loggerInstance struct {
@@ -37,9 +60,11 @@ type loggerInstance struct {
 
 //Logger struct is the one exported. This struct is filled and returned in the Init function and will be used to stores messages and loggerInstances
 type Logger struct {
-	actived   bool
-	messages  chan *loggerMessage
-	instances []loggerInstance
+	actived       bool
+	messages      chan *loggerMessage
+	instances     []loggerInstance
+	colors        map[string]string
+	colorsEnabled bool
 }
 
 //AddFileLogger open the file given as path, create a new logger and fill fields of this struct. The function returns a *Logger
@@ -106,12 +131,32 @@ func (l *Logger) Quit() {
 	}
 }
 
+func (l *Logger) EnableColor() {
+	l.colorsEnabled = true
+}
+
+func (l *Logger) DisableColor() {
+	l.colorsEnabled = false
+}
+
+func (l *Logger) initColorsMap() {
+	l.colors[Black] = "\033[30m"
+	l.colors[Red] = "\033[31m"
+	l.colors[Green] = "\033[32m"
+	l.colors[Yellow] = "\033[33m"
+	l.colors[Blue] = "\033[34m"
+	l.colors[Magenta] = "\033[35m"
+}
+
 //Init method permit to init a new Logging system and return a pointer to this logger system. It will be used to add Loggers and Print messages.
 func Init() *Logger {
 	l := Logger{
-		actived:  true,
-		messages: make(chan *loggerMessage, 64),
+		actived:       true,
+		messages:      make(chan *loggerMessage, 64),
+		colors:        make(map[string]string),
+		colorsEnabled: true,
 	}
+	l.initColorsMap()
 	go l.messagesHandler()
 	return &l
 }
