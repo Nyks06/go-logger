@@ -5,9 +5,6 @@ import (
 	"strconv"
 )
 
-// 	l.Output.Write([]byte(s))
-//	s := fmt.Sprintf("[%s] : [%s] [%s::%s:%s] - %s", lvl, date, file, funct, strconv.Itoa(line), message)
-
 func (l *Logger) formatMessage(m *loggerMessage) string {
 	log := fmt.Sprintf("[%s] : [%s] [%s::%s:%s] - %s", m.ltype, m.date, m.file, m.funct, strconv.Itoa(m.line), m.format)
 	return log
