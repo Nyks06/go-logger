@@ -1,8 +1,11 @@
 package logger
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
-func (l *Logger) generateMessage(depth int, ltype string, format string, a ...interface{}) {
+func (l *Logger) generateMessage(depth int, ltype string, format string) {
 	file, funct, line, err := getInfos(depth + 1)
 	if err != nil {
 		panic(err)
@@ -10,7 +13,6 @@ func (l *Logger) generateMessage(depth int, ltype string, format string, a ...in
 
 	m := loggerMessage{
 		format: format,
-		a:      a,
 		ltype:  ltype,
 		date:   time.Now().Format("2006-01-02 15:04:05"),
 		file:   file,
@@ -21,25 +23,25 @@ func (l *Logger) generateMessage(depth int, ltype string, format string, a ...in
 }
 
 func (l *Logger) Debug(format string, a ...interface{}) {
-	l.generateMessage(1, "DEBUG", format, a)
+	l.generateMessage(1, "DEBUG", fmt.Sprintf(format, a...))
 }
 
 func (l *Logger) Info(format string, a ...interface{}) {
-	l.generateMessage(1, "INFO", format, a)
+	l.generateMessage(1, "INFO", fmt.Sprintf(format, a...))
 }
 
 func (l *Logger) Notice(format string, a ...interface{}) {
-	l.generateMessage(1, "NOTICE", format, a)
+	l.generateMessage(1, "NOTICE", fmt.Sprintf(format, a...))
 }
 
 func (l *Logger) Warning(format string, a ...interface{}) {
-	l.generateMessage(1, "WARNING", format, a)
+	l.generateMessage(1, "WARNING", fmt.Sprintf(format, a...))
 }
 
 func (l *Logger) Error(format string, a ...interface{}) {
-	l.generateMessage(1, "ERROR", format, a)
+	l.generateMessage(1, "ERROR", fmt.Sprintf(format, a...))
 }
 
 func (l *Logger) Fatal(format string, a ...interface{}) {
-	l.generateMessage(1, "FATAL", format, a)
+	l.generateMessage(1, "FATAL", fmt.Sprintf(format, a...))
 }

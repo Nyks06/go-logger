@@ -22,7 +22,6 @@ const (
 
 type loggerMessage struct {
 	format string
-	a      []interface{}
 	ltype  string
 	date   string
 	file   string
