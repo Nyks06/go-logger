@@ -22,6 +22,9 @@ func (l *Logger) shouldDisplayColor(i *loggerInstance) bool {
 }
 
 func (l *Logger) syslogPrintMessage(ltype string, log string) {
+	if l.syslog.enabled == false {
+		return
+	}
 	switch ltype {
 	case Debug:
 		l.syslog.Writer.Debug(log)
@@ -49,12 +52,14 @@ func (l *Logger) formatMessage(m *loggerMessage) string {
 
 func (l *Logger) printMessage(m *loggerMessage, log string) {
 	for _, i := range l.instances {
-		if l.shouldDisplayColor(&i) {
-			i.output.Write([]byte(l.colors[m.ltype]))
-		}
-		i.output.Write([]byte(log))
-		if l.shouldDisplayColor(&i) {
-			i.output.Write([]byte(Reset))
+		if i.enabled == true {
+			if l.shouldDisplayColor(&i) {
+				i.output.Write([]byte(l.colors[m.ltype]))
+			}
+			i.output.Write([]byte(log))
+			if l.shouldDisplayColor(&i) {
+				i.output.Write([]byte(Reset))
+			}
 		}
 	}
 	l.syslogPrintMessage(m.ltype, log)
@@ -65,7 +70,9 @@ func (l *Logger) messagesHandler() {
 		select {
 		case m := <-l.messages:
 			log := l.formatMessage(m)
-			l.printMessage(m, log)
+			if l.enabled == true {
+				l.printMessage(m, log)
+			}
 		}
 	}
 }

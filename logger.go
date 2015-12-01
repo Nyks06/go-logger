@@ -66,18 +66,19 @@ type loggerMessage struct {
 }
 
 type loggerInstance struct {
-	actived Status
+	enabled Status
 	output  *os.File
 	ltype   Type
 }
 
 type loggerSyslog struct {
-	Writer *syslog.Writer
+	Writer  *syslog.Writer
+	enabled Status
 }
 
 //Logger struct is the one exported. This struct is filled and returned in the Init function and will be used to stores messages and loggerInstances
 type Logger struct {
-	actived       bool
+	enabled       Status
 	messages      chan *loggerMessage
 	instances     []loggerInstance
 	colors        map[string]string
@@ -97,7 +98,7 @@ func (l *Logger) AddFileLogger(path string) error {
 		return nil
 	}
 	i := loggerInstance{
-		actived: true,
+		enabled: true,
 		output:  out,
 		ltype:   FILE,
 	}
@@ -108,7 +109,7 @@ func (l *Logger) AddFileLogger(path string) error {
 //AddConsoleLogger create a Logger struct and fill fields of this struct. The function returns a *Logger
 func (l *Logger) AddConsoleLogger(out *os.File) error {
 	i := loggerInstance{
-		actived: true,
+		enabled: true,
 		output:  out,
 		ltype:   CONSOLE,
 	}
@@ -122,44 +123,85 @@ func (l *Logger) AddSyslogLogger(prefix string) error {
 		fmt.Printf("[GO-LOGGER] - ERROR - Can't connect to syslog - %s\n", err)
 		return nil
 	}
-	l.syslog = &loggerSyslog{
-		Writer: s,
-	}
+	l.syslog.Writer = s
+	l.syslog.enabled = true
 	return nil
 }
+
+// ##########################
+// ####### STATUS MANAGEMENT
+// ##########################
 
 //ChangeStatus is the one utilitary method usable to change the Status (Enabled / Disabled) for a kind of instances (console/file)
 func (l *Logger) ChangeStatus(t Type, s Status) {
 	for _, elem := range l.instances {
 		if elem.ltype == t {
-			elem.actived = s
+			elem.enabled = s
 		}
 	}
+}
+
+func (l *Logger) EnableConsoleLogger() {
+	for _, elem := range l.instances {
+		if elem.ltype == CONSOLE {
+			elem.enabled = true
+		}
+	}
+}
+
+func (l *Logger) DisableConsoleLogger() {
+	for _, elem := range l.instances {
+		if elem.ltype == CONSOLE {
+			elem.enabled = false
+		}
+	}
+}
+
+func (l *Logger) EnableFileLogger() {
+	for _, elem := range l.instances {
+		if elem.ltype == FILE {
+			elem.enabled = true
+		}
+	}
+}
+
+func (l *Logger) DisableFileLogger() {
+	for _, elem := range l.instances {
+		if elem.ltype == FILE {
+			elem.enabled = false
+		}
+	}
+}
+
+func (l *Logger) EnableSyslogLogger() {
+	l.syslog.enabled = true
+}
+
+func (l *Logger) DisableSyslogLogger() {
+	l.syslog.enabled = false
 }
 
 //Enable method permit to enable the logger system. When enabled, the logger system will print the messages when received
 func (l *Logger) Enable() {
-	l.actived = true
+	l.enabled = true
 }
 
 //Disable method permit to disable the logger system. When disabled, the logger system will not print anything
 func (l *Logger) Disable() {
-	l.actived = false
+	l.enabled = false
 }
 
 //CheckStatus method permit to check if the logger system is enable or disabled.
 func (l *Logger) CheckStatus() bool {
-	return l.actived
+	if l.enabled == true {
+		return true
+	}
+	return false
 }
 
-//Quit method permit to close all fles opened for logging.
-func (l *Logger) Quit() {
-	for _, elem := range l.instances {
-		if elem.ltype == FILE {
-			elem.output.Close()
-		}
-	}
-}
+// ##########################
+// ####### COLOR MANAGEMENT
+// ##########################
 
 func (l *Logger) EnableColor() {
 	l.colorsEnabled = true
@@ -174,7 +216,23 @@ func (l *Logger) ChangeColor(lvl string, color string) {
 }
 
 func (l *Logger) CheckColorStatus() bool {
-	return l.colorsEnabled
+	if l.colorsEnabled == true {
+		return true
+	}
+	return false
+}
+
+// ##########################
+// ####### INIT & QUIT
+// ##########################
+
+//Quit method permit to close all fles opened for logging.
+func (l *Logger) Quit() {
+	for _, elem := range l.instances {
+		if elem.ltype == FILE {
+			elem.output.Close()
+		}
+	}
 }
 
 func (l *Logger) initColorsMap() {
@@ -191,11 +249,13 @@ func (l *Logger) initColorsMap() {
 //Init method permit to init a new Logging system and return a pointer to this logger system. It will be used to add Loggers and Print messages.
 func Init() *Logger {
 	l := Logger{
-		actived:       true,
+		enabled:       true,
 		messages:      make(chan *loggerMessage, 64),
 		colors:        make(map[string]string),
 		colorsEnabled: true,
 	}
+	l.syslog = &loggerSyslog{enabled: false}
+
 	l.initColorsMap()
 	go l.messagesHandler()
 	return &l
