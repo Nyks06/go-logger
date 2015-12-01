@@ -36,18 +36,8 @@ const (
 )
 
 const (
-	DEBUG Level = iota
-	INFO
-	NOTICE
-	WARNING
-	ERROR
-	CRITITAL
-	ALERT
-	EMERGENCY
-)
-
-const (
 	Bold          string = "\033[1mbold"
+	Reset         string = "\033[00m"
 	LightGrey     string = "\033[37m"
 	Grey          string = "\033[39m"
 	Yellow        string = "\033[33m"
@@ -155,6 +145,10 @@ func (l *Logger) EnableColor() {
 
 func (l *Logger) DisableColor() {
 	l.colorsEnabled = false
+}
+
+func (l *Logger) ChangeColor(lvl string, color string) {
+	l.colors[lvl] = color
 }
 
 func (l *Logger) CheckColorStatus() bool {
