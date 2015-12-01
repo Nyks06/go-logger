@@ -6,7 +6,7 @@ import (
 )
 
 func (l *Logger) formatMessage(m *loggerMessage) string {
-	log := fmt.Sprintf("[%s] : [%s] [%s::%s:%s] - %s", m.ltype, m.date, m.file, m.funct, strconv.Itoa(m.line), m.format)
+	log := fmt.Sprintf("[%s] : [%s] [%s::%s:%s] - %s\n", m.ltype, m.date, m.file, m.funct, strconv.Itoa(m.line), m.format)
 	return log
 }
 

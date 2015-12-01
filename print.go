@@ -47,7 +47,17 @@ func (l *Logger) Error(format string, a ...interface{}) {
 	l.generateMessage(1, "ERROR", fmt.Sprintf(format, a...))
 }
 
-//Fatal is the one method called to display a FATAL message
-func (l *Logger) Fatal(format string, a ...interface{}) {
-	l.generateMessage(1, "FATAL", fmt.Sprintf(format, a...))
+//Critical is the one method called to display a CRITICAL message
+func (l *Logger) Critical(format string, a ...interface{}) {
+	l.generateMessage(1, "CRITICAL", fmt.Sprintf(format, a...))
+}
+
+//Alert is the one method called to display a ALERT message
+func (l *Logger) Alert(format string, a ...interface{}) {
+	l.generateMessage(1, "ALERT", fmt.Sprintf(format, a...))
+}
+
+//Emergency is the one method called to display a EMERGENCY message
+func (l *Logger) Emergency(format string, a ...interface{}) {
+	l.generateMessage(1, "EMERGENCY", fmt.Sprintf(format, a...))
 }

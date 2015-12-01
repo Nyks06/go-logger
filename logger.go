@@ -25,21 +25,39 @@ const (
 )
 
 const (
-	Black   string = "DEBUG"
-	Red     string = "ERROR"
-	Green   string = "NOTICE"
-	Yellow  string = "WARNING"
-	Blue    string = "INFO"
-	Magenta string = "FATAL"
+	Debug     string = "DEBUG"
+	Info      string = "INFO"
+	Notice    string = "NOTICE"
+	Warning   string = "WARNING"
+	Error     string = "ERROR"
+	Critical  string = "CRITICAL"
+	Alert     string = "ALERT"
+	Emergency string = "EMERGENCY"
 )
 
 const (
-	DEBUG   Level = iota
-	INFO    Level = iota
-	NOTICE  Level = iota
-	WARNING Level = iota
-	ERROR   Level = iota
-	FATAL   Level = iota
+	DEBUG Level = iota
+	INFO
+	NOTICE
+	WARNING
+	ERROR
+	CRITITAL
+	ALERT
+	EMERGENCY
+)
+
+const (
+	Bold          string = "\033[1mbold"
+	LightGrey     string = "\033[37m"
+	Grey          string = "\033[39m"
+	Yellow        string = "\033[33m"
+	Red           string = "\033[31m"
+	Green         string = "\033[32m"
+	LightRed      string = "\033[91m"
+	White         string = "\033[97m"
+	LightBlue     string = "\033[94m"
+	LightYellow   string = "\033[93m"
+	BackgroundRed string = "\033[41m"
 )
 
 type loggerMessage struct {
@@ -69,7 +87,7 @@ type Logger struct {
 
 //AddFileLogger open the file given as path, create a new logger and fill fields of this struct. The function returns a *Logger
 func (l *Logger) AddFileLogger(path string) error {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	if _, err := os.Stat(path); os.IsExist(err) {
 		fmt.Printf("[GO-LOGGER] - ERROR - The file given as parameter exist - %s\n", err)
 		return nil
 	}
@@ -139,13 +157,19 @@ func (l *Logger) DisableColor() {
 	l.colorsEnabled = false
 }
 
+func (l *Logger) CheckColorStatus() bool {
+	return l.colorsEnabled
+}
+
 func (l *Logger) initColorsMap() {
-	l.colors[Black] = "\033[30m"
-	l.colors[Red] = "\033[31m"
-	l.colors[Green] = "\033[32m"
-	l.colors[Yellow] = "\033[33m"
-	l.colors[Blue] = "\033[34m"
-	l.colors[Magenta] = "\033[35m"
+	l.colors[Debug] = Grey
+	l.colors[Info] = White
+	l.colors[Notice] = White
+	l.colors[Warning] = LightYellow
+	l.colors[Error] = Yellow
+	l.colors[Critical] = Red
+	l.colors[Alert] = Red
+	l.colors[Emergency] = BackgroundRed
 }
 
 //Init method permit to init a new Logging system and return a pointer to this logger system. It will be used to add Loggers and Print messages.
