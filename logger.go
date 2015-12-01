@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"log/syslog"
 	"os"
 )
 
@@ -20,6 +21,8 @@ const (
 	CONSOLE Type = iota
 	//FILE is the one LoggerType used in the NewFileLogger() function
 	FILE Type = iota
+	//SYSLOG is the one LoggerType used in the NewSyslogLogger() function
+	ANSYSLOG Type = iota
 	//ANY is the one LoggerType used to contains CONSOLE and FILE types
 	ANY Type = iota
 )
@@ -34,6 +37,8 @@ const (
 	Alert     string = "ALERT"
 	Emergency string = "EMERGENCY"
 )
+
+const ()
 
 const (
 	Bold          string = "\033[1mbold"
@@ -66,12 +71,17 @@ type loggerInstance struct {
 	ltype   Type
 }
 
+type loggerSyslog struct {
+	Writer *syslog.Writer
+}
+
 //Logger struct is the one exported. This struct is filled and returned in the Init function and will be used to stores messages and loggerInstances
 type Logger struct {
 	actived       bool
 	messages      chan *loggerMessage
 	instances     []loggerInstance
 	colors        map[string]string
+	syslog        *loggerSyslog
 	colorsEnabled bool
 }
 
@@ -103,6 +113,18 @@ func (l *Logger) AddConsoleLogger(out *os.File) error {
 		ltype:   CONSOLE,
 	}
 	l.instances = append(l.instances, i)
+	return nil
+}
+
+func (l *Logger) AddSyslogLogger(prefix string) error {
+	s, err := syslog.New(syslog.LOG_DEBUG, prefix)
+	if err != nil {
+		fmt.Printf("[GO-LOGGER] - ERROR - Can't connect to syslog - %s\n", err)
+		return nil
+	}
+	l.syslog = &loggerSyslog{
+		Writer: s,
+	}
 	return nil
 }
 
