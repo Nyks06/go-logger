@@ -6,8 +6,8 @@ import (
 	"strconv"
 )
 
-func (l *Logger) checkIfTTY() bool {
-	stat, _ := os.Stdout.Stat()
+func (l *Logger) checkIfTTY(i *loggerInstance) bool {
+	stat, _ := i.output.Stat()
 	if (stat.Mode() & os.ModeCharDevice) == 0 {
 		return false
 	}
@@ -15,7 +15,7 @@ func (l *Logger) checkIfTTY() bool {
 }
 
 func (l *Logger) shouldDisplayColor(i *loggerInstance) bool {
-	if i.ltype == CONSOLE && l.colorsEnabled == true && l.checkIfTTY() == true {
+	if i.ltype == CONSOLE && l.colorsEnabled == true && l.checkIfTTY(i) == true {
 		return true
 	}
 	return false
