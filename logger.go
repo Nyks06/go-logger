@@ -257,6 +257,5 @@ func Init() *Logger {
 	l.syslog = &loggerSyslog{enabled: false}
 
 	l.initColorsMap()
-	go l.messagesHandler()
 	return &l
 }

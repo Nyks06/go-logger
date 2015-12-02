@@ -19,7 +19,7 @@ func (l *Logger) generateMessage(depth int, ltype string, format string) {
 		funct:  funct,
 		line:   line,
 	}
-	l.messages <- &m
+	l.handledMessage(&m)
 }
 
 //Debug is the one method called to display a DEBUG message

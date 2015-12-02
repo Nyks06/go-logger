@@ -65,14 +65,9 @@ func (l *Logger) printMessage(m *loggerMessage, log string) {
 	l.syslogPrintMessage(m.ltype, log)
 }
 
-func (l *Logger) messagesHandler() {
-	for {
-		select {
-		case m := <-l.messages:
-			log := l.formatMessage(m)
-			if l.enabled == true {
-				l.printMessage(m, log)
-			}
-		}
+func (l *Logger) handledMessage(m *loggerMessage) {
+	log := l.formatMessage(m)
+	if l.enabled == true {
+		l.printMessage(m, log)
 	}
 }
