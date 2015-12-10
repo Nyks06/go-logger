@@ -45,12 +45,13 @@ func (l *Logger) syslogPrintMessage(ltype string, log string) {
 	}
 }
 
-func (l *Logger) formatMessage(m *loggerMessage) string {
+func (l *Logger) formatMessage(m *loggerMessage) (string, string) {
 	log := fmt.Sprintf("[%s] : [%s] [%s::%s:%s] - %s\n", m.ltype, m.date, m.file, m.funct, strconv.Itoa(m.line), m.format)
-	return log
+	logMin := fmt.Sprintf("[%s::%s:%s] - %s\n", m.file, m.funct, strconv.Itoa(m.line), m.format)
+	return log, logMin
 }
 
-func (l *Logger) printMessage(m *loggerMessage, log string) {
+func (l *Logger) printMessage(m *loggerMessage, log string, logMin string) {
 	for _, i := range l.instances {
 		if i.enabled == true {
 			if l.shouldDisplayColor(&i) {
@@ -62,12 +63,12 @@ func (l *Logger) printMessage(m *loggerMessage, log string) {
 			}
 		}
 	}
-	l.syslogPrintMessage(m.ltype, log)
+	l.syslogPrintMessage(m.ltype, logMin)
 }
 
 func (l *Logger) handledMessage(m *loggerMessage) {
-	log := l.formatMessage(m)
+	log, logMin := l.formatMessage(m)
 	if l.enabled == true {
-		l.printMessage(m, log)
+		l.printMessage(m, log, logMin)
 	}
 }
