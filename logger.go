@@ -86,6 +86,8 @@ type Logger struct {
 	colorsEnabled bool
 }
 
+var instance *Logger = nil
+
 //AddFileLogger open the file given as path, create a new logger and fill fields of this struct. The function returns a *Logger
 func (l *Logger) AddFileLogger(path string) error {
 	if _, err := os.Stat(path); os.IsExist(err) {
@@ -246,6 +248,13 @@ func (l *Logger) initColorsMap() {
 	l.colors[Emergency] = BackgroundRed
 }
 
+func Get() *Logger {
+	if instance == nil {
+		return Init()
+	}
+	return instance
+}
+
 //Init method permit to init a new Logging system and return a pointer to this logger system. It will be used to add Loggers and Print messages.
 func Init() *Logger {
 	l := Logger{
@@ -257,5 +266,6 @@ func Init() *Logger {
 	l.syslog = &loggerSyslog{enabled: false}
 
 	l.initColorsMap()
+	instance = &l
 	return &l
 }

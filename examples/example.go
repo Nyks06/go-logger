@@ -15,8 +15,8 @@ func main() {
 	//These functions show you how to add a logger type.
 	//You can add as much logger as you want, even with the same type.
 	l.AddConsoleLogger(os.Stderr)
-	l.AddFileLogger("./log.file")
-	l.AddSyslogLogger("syslog-Prefix")
+	l.AddFileLogger("./log.chris")
+	l.AddSyslogLogger("syslog-Chris")
 
 	//You can enable or disable the color display with a simple function
 	//By default, the text is in color. (Configurable only for console output)
@@ -48,7 +48,7 @@ func main() {
 	l.EnableFileLogger()
 	l.EnableSyslogLogger()
 
-	//Finally, you can display message using functions with the name corresponding to the level of log you want.
+	//You can display message using functions with the name corresponding to the level of log you want.
 	//You can format your log message as if you were using log package function fmt.Printf
 	l.Debug("This is a %s message", "debug")
 	l.Info("This is an info message - %d", 42)
@@ -58,6 +58,10 @@ func main() {
 	l.Critical("This is a critical error message")
 	l.Alert("This is an alert error message")
 	l.Emergency("This is a emergency message")
+
+	//The logger act as a singleton. You can get the instance using Get(). If you've not call Init(), it will do it and returns the result.
+	l2 := logger.Get()
+	l2.Emergency("Message printed using Get()")
 
 	//Finally, you can close all Opened files with the l.Quit() function
 	l.Quit()
