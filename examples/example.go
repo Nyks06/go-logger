@@ -15,8 +15,8 @@ func main() {
 	//These functions show you how to add a logger type.
 	//You can add as much logger as you want, even with the same type.
 	l.AddConsoleLogger(os.Stderr)
-	l.AddFileLogger("./log.chris")
-	l.AddSyslogLogger("syslog-Chris")
+	l.AddFileLogger("./log.file")
+	l.AddSyslogLogger("syslog-File")
 
 	//You can enable or disable the color display with a simple function
 	//By default, the text is in color. (Configurable only for console output)

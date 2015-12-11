@@ -69,6 +69,8 @@ func (l *Logger) printMessage(m *loggerMessage, log string, logMin string) {
 func (l *Logger) handledMessage(m *loggerMessage) {
 	log, logMin := l.formatMessage(m)
 	if l.enabled == true {
+		l.mutex.Lock()
 		l.printMessage(m, log, logMin)
+		l.mutex.Unlock()
 	}
 }

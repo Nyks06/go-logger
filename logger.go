@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/syslog"
 	"os"
+	"sync"
 )
 
 //Type is the one type used to define CONSOLE, FILE, ... - the type of our logger
@@ -84,6 +85,7 @@ type Logger struct {
 	colors        map[string]string
 	syslog        *loggerSyslog
 	colorsEnabled bool
+	mutex         *sync.RWMutex
 }
 
 var instance *Logger = nil
@@ -266,6 +268,7 @@ func Init() *Logger {
 	l.syslog = &loggerSyslog{enabled: false}
 
 	l.initColorsMap()
+	l.mutex = &sync.RWMutex{}
 	instance = &l
 	return &l
 }
