@@ -15,7 +15,7 @@ func (l *Logger) checkIfTTY(i *loggerInstance) bool {
 }
 
 func (l *Logger) shouldDisplayColor(i *loggerInstance) bool {
-	if i.ltype == CONSOLE && l.colorsEnabled == true && l.checkIfTTY(i) == true {
+	if i.ltype == consoleType && l.colorsEnabled == true && l.checkIfTTY(i) == true {
 		return true
 	}
 	return false
@@ -26,28 +26,28 @@ func (l *Logger) syslogPrintMessage(ltype string, log string) {
 		return
 	}
 	switch ltype {
-	case Debug:
-		l.syslog.Writer.Debug(log)
-	case Info:
-		l.syslog.Writer.Info(log)
-	case Notice:
-		l.syslog.Writer.Notice(log)
-	case Warning:
-		l.syslog.Writer.Warning(log)
-	case Error:
-		l.syslog.Writer.Err(log)
-	case Critical:
-		l.syslog.Writer.Crit(log)
-	case Alert:
-		l.syslog.Writer.Alert(log)
-	case Emergency:
-		l.syslog.Writer.Emerg(log)
+	case debugLevel:
+		l.syslog.writer.Debug(log)
+	case infoLevel:
+		l.syslog.writer.Info(log)
+	case noticeLevel:
+		l.syslog.writer.Notice(log)
+	case warningLevel:
+		l.syslog.writer.Warning(log)
+	case errorLevel:
+		l.syslog.writer.Err(log)
+	case criticalLevel:
+		l.syslog.writer.Crit(log)
+	case alertLevel:
+		l.syslog.writer.Alert(log)
+	case emergencyLevel:
+		l.syslog.writer.Emerg(log)
 	}
 }
 
 func (l *Logger) formatMessage(m *loggerMessage) (string, string) {
-	log := fmt.Sprintf("[%s] : [%s] [%s::%s:%s] - %s\n", m.ltype, m.date, m.file, m.funct, strconv.Itoa(m.line), m.format)
-	logMin := fmt.Sprintf("[%s::%s:%s] - %s\n", m.file, m.funct, strconv.Itoa(m.line), m.format)
+	log := fmt.Sprintf("[%s] : [%s] [%s::%s:%s] - %s\n", m.ltype, m.date, m.file, m.fnct, strconv.Itoa(m.line), m.format)
+	logMin := fmt.Sprintf("[%s::%s:%s] - %s\n", m.file, m.fnct, strconv.Itoa(m.line), m.format)
 	return log, logMin
 }
 
@@ -59,7 +59,7 @@ func (l *Logger) printMessage(m *loggerMessage, log string, logMin string) {
 			}
 			i.output.Write([]byte(log))
 			if l.shouldDisplayColor(&i) {
-				i.output.Write([]byte(Reset))
+				i.output.Write([]byte(reset))
 			}
 		}
 	}
