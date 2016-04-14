@@ -13,10 +13,13 @@ func main() {
 	l := logger.Init()
 
 	//These functions show you how to add a logger type.
-	//You can add as much logger as you want, even with the same type.
+	//You can add as much logger as you want, even with the same type (excepted for syslog, for the moment).
 	l.AddConsoleLogger(os.Stderr)
 	l.AddFileLogger("./log.file")
-	l.AddSyslogLogger("syslog-File")
+	//Windows way to add a syslog logger
+	l.AddSyslogLogger("udp", "127.0.0.1:514", "syslog-Tag")
+	//Unix way to add a syslog logger
+	l.AddSyslogLogger("", "", "syslog-Tag")
 
 	//You can enable or disable the color display with a simple function
 	//By default, the text is in color. (Configurable only for console output)
