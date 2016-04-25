@@ -86,7 +86,7 @@ type Logger struct {
 var l *Logger
 
 func init() {
-	l := new(Logger)
+	l = new(Logger)
 	l.enabled = true
 	l.mutex = &sync.RWMutex{}
 
