@@ -22,9 +22,6 @@ func (l *Logger) shouldDisplayColor(i *loggerInstance) bool {
 }
 
 func (l *Logger) syslogPrintMessage(ltype string, log string) {
-	if l.syslog.enabled == false {
-		return
-	}
 	switch ltype {
 	case debugLevel:
 		l.syslog.writer.Debug(log)
@@ -63,7 +60,9 @@ func (l *Logger) printMessage(m *loggerMessage, log string, logMin string) {
 			}
 		}
 	}
-	l.syslogPrintMessage(m.ltype, logMin)
+	if l.syslog.enabled {
+		l.syslogPrintMessage(m.ltype, logMin)
+	}
 }
 
 func (l *Logger) handledMessage(m *loggerMessage) {

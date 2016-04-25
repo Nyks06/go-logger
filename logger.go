@@ -19,12 +19,9 @@ type logColor string
 type status bool
 
 const (
-	//CONSOLE is the one LoggerType used in the NewConsoleLogger() function
 	consoleType outType = iota
-	//FILE is the one LoggerType used in the NewFileLogger() function
-	fileType outType = iota
-	//SYSLOG is the one LoggerType used in the NewSyslogLogger() function
-	syslogType outType = iota
+	fileType    outType = iota
+	syslogType  outType = iota
 )
 
 const (
@@ -79,7 +76,6 @@ type Logger struct {
 	enabled status
 	mutex   *sync.RWMutex
 
-	messages  chan *loggerMessage
 	instances []loggerInstance
 	syslog    *loggerSyslog
 
@@ -94,7 +90,6 @@ func init() {
 	l.enabled = true
 	l.mutex = &sync.RWMutex{}
 
-	l.messages = make(chan *loggerMessage, 64)
 	l.syslog = &loggerSyslog{enabled: false}
 
 	l.colors = make(map[string]string)
@@ -132,7 +127,7 @@ func AddFileLogger(path string) error {
 }
 
 //AddConsoleLogger create a Logger struct and fill fields of this struct. The function returns a *Logger
-func (l *Logger) AddConsoleLogger(out *os.File) error {
+func AddConsoleLogger(out *os.File) error {
 	i := loggerInstance{
 		enabled: true,
 		output:  out,
@@ -142,7 +137,8 @@ func (l *Logger) AddConsoleLogger(out *os.File) error {
 	return nil
 }
 
-func (l *Logger) AddSyslogLogger(network, raddr, prefix string) error {
+//AddSyslogLogger function needs the Nyks06/go-syslog package to works because of the problems between Windows platform and go-syslog package.
+func AddSyslogLogger(network, raddr, prefix string) error {
 	s, err := slog.Dial(network, raddr, slog.LOG_DEBUG, prefix)
 	if err != nil {
 		return errors.New("[GO-LOGGER] - ERROR - Can't connect to syslog")
@@ -156,7 +152,8 @@ func (l *Logger) AddSyslogLogger(network, raddr, prefix string) error {
 // ####### STATUS MANAGEMENT
 // ##########################
 
-func (l *Logger) EnableConsoleLogger() {
+//EnableConsoleLogger function permits to enable Console loggers created before.
+func EnableConsoleLogger() {
 	for _, elem := range l.instances {
 		if elem.ltype == consoleType {
 			elem.enabled = true
@@ -164,7 +161,8 @@ func (l *Logger) EnableConsoleLogger() {
 	}
 }
 
-func (l *Logger) DisableConsoleLogger() {
+//DisableConsoleLogger function permits to disable Console loggers created before.
+func DisableConsoleLogger() {
 	for _, elem := range l.instances {
 		if elem.ltype == consoleType {
 			elem.enabled = false
@@ -172,7 +170,8 @@ func (l *Logger) DisableConsoleLogger() {
 	}
 }
 
-func (l *Logger) EnableFileLogger() {
+//EnableFileLogger function permits to enable File loggers created before.
+func EnableFileLogger() {
 	for _, elem := range l.instances {
 		if elem.ltype == fileType {
 			elem.enabled = true
@@ -180,7 +179,8 @@ func (l *Logger) EnableFileLogger() {
 	}
 }
 
-func (l *Logger) DisableFileLogger() {
+//DisableFileLogger function permits to disable File loggers created before.
+func DisableFileLogger() {
 	for _, elem := range l.instances {
 		if elem.ltype == fileType {
 			elem.enabled = false
@@ -188,53 +188,56 @@ func (l *Logger) DisableFileLogger() {
 	}
 }
 
-func (l *Logger) EnableSyslogLogger() {
+//EnableSyslogLogger function permits to enable Syslog logger if already initialized.
+func EnableSyslogLogger() {
 	l.syslog.enabled = true
 }
 
-func (l *Logger) DisableSyslogLogger() {
+//DisableSyslogLogger function permits to disable Syslog logger if already initialized.
+func DisableSyslogLogger() {
 	l.syslog.enabled = false
 }
 
 //Enable method permit to enable the logger system. When enabled, the logger system will print the messages when received
-func (l *Logger) Enable() {
+func Enable() {
 	l.enabled = true
 }
 
-//Disable method permit to disable the logger system. When disabled, the logger system will not print anything
-func (l *Logger) Disable() {
+//Disable method permits to disable the logger system. When disabled, the logger system will not print anything
+func Disable() {
 	l.enabled = false
 }
 
-//IsEnabled method permit to check if the logger system is enable or disabled.
-func (l *Logger) IsEnabled() bool {
-	if l.enabled == true {
-		return true
-	}
-	return false
+//IsEnabled method permits to check if the logger system is enable or disabled.
+func IsEnabled() bool {
+	return bool(l.enabled)
 }
 
 // ##########################
 // ####### COLOR MANAGEMENT
 // ##########################
 
-func (l *Logger) EnableColor() {
+//EnableColor function enables the color for console loggers
+func EnableColor() {
 	l.colorsEnabled = true
 }
 
-func (l *Logger) DisableColor() {
+//DisableColor function disables the color for console loggers
+func DisableColor() {
 	l.colorsEnabled = false
 }
 
-func (l *Logger) ChangeColor(lvl string, color string) {
+//ChangeColor function needs a level already existing
+func ChangeColor(lvl string, color string) {
+	if _, ok := l.colors[lvl]; !ok {
+		return
+	}
 	l.colors[lvl] = color
 }
 
-func (l *Logger) CheckColorStatus() bool {
-	if l.colorsEnabled == true {
-		return true
-	}
-	return false
+//CheckColorStatus function permits to know if the color system is enabled for console loggers.
+func CheckColorStatus() bool {
+	return bool(l.colorsEnabled)
 }
 
 // ##########################
@@ -242,7 +245,7 @@ func (l *Logger) CheckColorStatus() bool {
 // ##########################
 
 //Close method permit to close all fles opened for logging.
-func (l *Logger) Close() {
+func Close() {
 	for _, elem := range l.instances {
 		if elem.ltype == fileType {
 			elem.output.Close()
